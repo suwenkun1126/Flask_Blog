@@ -5,7 +5,6 @@ from ..models import Post,User,Permission
 from .. import db
 from .errors import forbidden
 
-
 @api.route('/posts/')
 def get_posts():
     page=request.args.get('page',1,type=int)

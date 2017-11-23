@@ -5,7 +5,6 @@ from app.models import Role,User
 from app import db,create_app
 import json
 
-
 class APITestCase(unittest.TestCase):
     def setUp(self):
         self.app=create_app('testing')

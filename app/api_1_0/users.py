@@ -2,7 +2,6 @@ from app.api_1_0 import api
 from app.models import User,Post
 from flask import jsonify,request,current_app,url_for
 
-
 @api.route('/users/<int:id>')
 def get_user(id):
     user=User.query.get_or_404(id)
@@ -11,7 +10,7 @@ def get_user(id):
 @api.route('/users/<int:id>/posts/')
 def get_user_posts(id):
     user=User.query.get_or_404(id)
-    page=request.args.get('page', 1, type=int)
+    page=request.args.get('page',1,type=int)
     pagination=user.posts.order_by(Post.timestamp.desc()).paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],error_out = False)
     posts=pagination.items

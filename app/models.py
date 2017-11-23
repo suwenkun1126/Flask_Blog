@@ -97,7 +97,6 @@ class User(UserMixin,db.Model):
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = self.gravatar_hash()
 
-
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -192,7 +191,6 @@ login_manager.anonymous_user=AnonymousUser
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
 
 class Post(db.Model):
     __tablename__='posts'

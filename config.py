@@ -63,10 +63,6 @@ class ProductionConfig(Config):
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
 
-
-
-
-
 config={
     'development':DevelopmentConfig,
     'testing':TestingConfig,
