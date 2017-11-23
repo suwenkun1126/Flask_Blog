@@ -7,8 +7,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS=True
     FLASKY_MAIL_SUBJECT_PREFIX='[Flasky]'
     FLASKY_MAIL_SENDER='378733604@qq.com'
-    # FLASKY_ADMIN=os.environ.get('FLASKY_ADMIN')
-    FLASKY_ADMIN='378733604@qq.com'
+    FLASKY_ADMIN=os.environ.get('FLASKY_ADMIN')
+    # FLASKY_ADMIN='378733604@qq.com'
     FLASKY_COMMENTS_PER_PAGE=10
     FLASKY_POSTS_PER_PAGE=10
     SQLCHEMY_RECORD_QUERIES=True
@@ -24,10 +24,10 @@ class DevelopmentConfig(Config):
     MAIL_PORT=465
     MAIL_USE_TLS=False
     MAIL_USE_SSL=True
-    # MAIL_USERNAME=os.environ.get('MAIL_USERNAME')
-    MAIL_USERNAME='37xxxxxxx@qq.com'
-    # MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
-    MAIL_PASSWORD='kvxxxxxxxxxxxx'
+    MAIL_USERNAME=os.environ.get('MAIL_USERNAME')
+    # MAIL_USERNAME='37xxxxxxx@qq.com'
+    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
+    # MAIL_PASSWORD='kvxxxxxxxxxxxx'
     SQLALCHEMY_DATABASE_URI=os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
