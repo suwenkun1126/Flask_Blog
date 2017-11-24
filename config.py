@@ -42,6 +42,12 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     # SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL') or \
     #                           'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    MAIL_SERVER='smtp.qq.com'
+    MAIL_PORT=465
+    MAIL_USE_TLS=False
+    MAIL_USE_SSL=True
+    MAIL_USERNAME=os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
     SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL')
     @classmethod
     def init_app(cls,app):
