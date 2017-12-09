@@ -203,7 +203,7 @@ class Post(db.Model):
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))
     comments=db.relationship('Comment',backref='post',lazy='dynamic')
     category_id=db.Column(db.Integer,db.ForeignKey('category.id'))
-    visits=db.Column(db.Integer,server_default="true", nullable=False,default=int(10))
+    visits=db.Column(db.Integer,server_default="true", nullable=False,default=1)
 
     @staticmethod
     def generate_fake(count=100):

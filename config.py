@@ -28,9 +28,9 @@ class DevelopmentConfig(Config):
     # MAIL_USERNAME='37xxxxxxx@qq.com'
     MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
     # MAIL_PASSWORD='kvxxxxxxxxxxxx'
-    # SQLALCHEMY_DATABASE_URI=os.environ.get('DEV_DATABASE_URL') or \
-    #     'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
-    SQLALCHEMY_DATABASE_URI=os.environ.get('DEV_DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI=os.environ.get('DEV_DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+    # SQLALCHEMY_DATABASE_URI=os.environ.get('DEV_DATABASE_URL')
 
 class TestingConfig(Config):
     TESTING=True

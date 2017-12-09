@@ -80,7 +80,9 @@
                         <div class="panel-body">
                             <ol class="list-unstyled">
                                 {% for post in g.hotpost[0:5] %}
-                                    <li><a href="{{ url_for('main.post',id=post.id) }}">{{ post.head }}</a><span class="badge" style="float: right">{{ post.visits }}</span></li>
+                                    {% if post %}
+                                        <li><a href="{{ url_for('main.post',id=post.id) }}">{{ post.head }}</a><span class="badge" style="float: right">{{ post.visits }}</span></li>
+                                    {% endif %}
                                     <br>
                                 {% endfor %}
                              </ol>
