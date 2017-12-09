@@ -1,3 +1,4 @@
+#! -*- coding:utf-8 -*-
 from flask import render_template,redirect,request,url_for,flash
 from flask_login import login_user,logout_user,login_required
 from . import auth
@@ -29,14 +30,14 @@ def login():
         if user is not None and user.verify_password(form.password.data):
             login_user(user,form.remember_me.data)
             return redirect(request.args.get('next') or url_for('main.index'))
-        flash('Invalid username or password.')
+        flash(u'用户名或密码不正确')
     return render_template('auth/login.html',form=form)
 
 @auth.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash('You have been logout out.')
+    flash(u'账号成功注销')
     return redirect(url_for('main.index'))
 
 @auth.route('/register',methods=['GET','POST'])
@@ -51,7 +52,7 @@ def register():
         token=user.generate_confirmation_token()
         send_email(user.email,'Confirm Your Account',
                    'auth/email/confirm',user=user,token=token)
-        flash('A confirmation email has been sent to your email')
+        flash(u'确认邮件已发送至您的邮箱')
         return redirect(url_for('main.index'))
     return render_template('auth/register.html',form=form)
 
@@ -61,9 +62,9 @@ def confirm(token):
     if current_user.confirmed:
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
-        flash('You have confirmed your account.Thanks')
+        flash(u'确认账号成功，谢谢！')
     else:
-        flash('The confirmation link is invalid or has expired.')
+        flash(u'确认链接非法或者已经失效')
     return redirect(url_for('main.index'))
 
 @auth.route('/confirm')
@@ -72,7 +73,7 @@ def resend_confirmation():
     token=current_user.generate_confirmation_token()
     send_email(current_user.email,'Confirm Your Account',
                'auth/email/confirm',user=current_user,token=token)
-    flash('A new confirmation email has been sent to you by email.')
+    flash(u'新的确认邮件已发送至您的邮箱')
     return redirect(url_for('main.index'))
 
 @auth.route('/change-password',methods=['GET','POST'])
@@ -83,10 +84,10 @@ def change_password():
         if current_user.verify_password(form.oldpassword.data):
             current_user.password=form.password.data
             db.session.add(current_user)
-            flash('Your password has been updated')
+            flash(u'密码更改成功')
             return redirect(url_for('main.index'))
         else:
-            flash('Invalid password.')
+            flash(u'密码错误')
     return render_template("auth/change-password.html",form=form)
 
 

@@ -4,7 +4,7 @@
             <div class="post">
                 <div class="post-thumbnail">
                     <a href="{{ url_for('.user',username=post.author.username) }}">
-                        <img{% if post.author %} class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=25)}}"{% endif %} >
+                        <img{% if post.author %} class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=30)}}"{% endif %} >
                     </a>
                 </div>
                 <div class="post-content">
@@ -22,13 +22,25 @@
                     <br><br>
                     <div class="post-body text-center">
                         {% if post.body_html %}
-                            {{ post.body_html|safe }}
+                            {% if post.body_html[200] %}
+                                {{ post.body_html[0:200]|safe }}......
+                            {% else %}
+                                {{ post.body_html|safe }}
+                            {% endif %}
                         {% else %}
-                            {{ post.body }}
+                            {% if  post.body[200] %}
+                                {{ post.body[0:200] }}......
+                            {% else %}
+                                {{ post.body }}
+                            {% endif %}
                         {% endif %}
                     </div>
                     <br><br>
                     <div class="post-footer">
+                        <a href="{{ url_for('.post',id=post.id) }}">
+                            <span class="label label-success">阅读全文</span>
+{#                            <button class="sm">阅读全文</button>#}
+                        </a>
                         {% if current_user==post.author %}
                             <a href="{{ url_for('.edit',id=post.id) }}">
                                 <span class="label label-primary">编辑</span>
@@ -41,9 +53,12 @@
                                 <span class="label label-danger">编辑 [管理员]</span>
                             </a>
                             <a href="{{ url_for('.delete_post',id=post.id) }}">
-                                <span class="label label-danger">删除</span>
+                                <span class="label label-danger">删除 [管理员]</span>
                             </a>
                         {% endif %}
+{#                        <a href="{{ url_for('.post',id=post.id) }}">#}
+{#                            <span class="label label-default">链接</span>#}
+{#                        </a>#}
                         <a href="{{ url_for('.post',id=post.id) }}#comments">
                             <span class="label label-primary">
                                 {{ post.comments.count() }}评论

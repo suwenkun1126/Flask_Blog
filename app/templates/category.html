@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% import '_macros.html' as macros %}
+
+{% block title %}Kuwe - {{ category.category }}{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h1>分类 - {{ category.category }}</h1>
+    </div>
+    {% include '_posts_thumbnail.html' %}
+    {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination,'.category',id=category.id) }}
+        </div>
+    {% endif %}
+{% endblock %}

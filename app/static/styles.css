@@ -29,7 +29,7 @@ div.post-date {
     float: right;
 }
 div.post-author {
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
 div.post-thumbnail {
     position: absolute;
@@ -75,7 +75,7 @@ div.comment-form {
 }
 div.pagination {
     width: 100%;
-    text-align: right;
+    text-align:right;
     padding: 0px;
     margin: 0px;
 }
@@ -104,4 +104,10 @@ div.flask-pagedown-preview h3 {
 }
 .table.followers tr {
     border-bottom: 1px solid #e0e0e0;
+}
+.post-title-default {
+    color: #555;
+}
+.well.big {
+    padding:1.5em 2.25em;
 }

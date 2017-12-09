@@ -6,7 +6,7 @@ if os.environ.get('FLASK_COVERAGE'):
     COV.start()
 
 from app import create_app,db
-from app.models import User,Role,Permission,Post
+from app.models import User,Role,Permission,Post,Category
 from flask_script import Manager,Shell
 from flask_migrate import  Migrate,MigrateCommand,upgrade
 
@@ -15,7 +15,7 @@ manager=Manager(app)
 migrate=Migrate(app,db)
 
 def make_shell_context():
-    return dict(app=app,db=db,User=User,Role=Role,Permission=Permission,Post=Post)
+    return dict(app=app,db=db,User=User,Role=Role,Permission=Permission,Post=Post,Category=Category)
 manager.add_command("shell",Shell(make_context=make_shell_context))
 manager.add_command('db',MigrateCommand)
 
@@ -29,6 +29,7 @@ def profile(length=25,profile_dir=None):
 def deploy():
     upgrade()
     Role.insert_roles()
+    Category.add_category()
 
 @manager.command
 def test(coverage=False):

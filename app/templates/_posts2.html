@@ -17,17 +17,15 @@
                         <small>发布:{{ moment(post.timestamp).fromNow() }} <br>
                             分类:<a href="{{ url_for('.category',id=post.category_id) }}">{{ post.category.category }}</a></small>
                     </div>
-                    <div><small>作者:<a href="{{ url_for('.user', username=post.author.username) }}">{{ post.author.username }}</a><br>
-                    阅读量:{{ post.visits }}</small></div>
-                    <br><br>
+                    <div><small>作者:<a href="{{ url_for('.user', username=post.author.username) }}">{{ post.author.username }}</a></small></div>
+                    <br><br><br>
                     <div class="post-body text-center">
                         {% if post.body_html %}
-                            {{ post.body_html|safe }}
+                            {{ post.body_html[0:200]|safe }}...
                         {% else %}
-                            {{ post.body }}
+                            {{ post.body[0:200] }}...
                         {% endif %}
                     </div>
-                    <br><br>
                     <div class="post-footer">
                         {% if current_user==post.author %}
                             <a href="{{ url_for('.edit',id=post.id) }}">
@@ -41,9 +39,12 @@
                                 <span class="label label-danger">编辑 [管理员]</span>
                             </a>
                             <a href="{{ url_for('.delete_post',id=post.id) }}">
-                                <span class="label label-danger">删除</span>
+                                <span class="label label-danger">删除 [管理员]</span>
                             </a>
                         {% endif %}
+{#                        <a href="{{ url_for('.post',id=post.id) }}">#}
+{#                            <span class="label label-default">链接</span>#}
+{#                        </a>#}
                         <a href="{{ url_for('.post',id=post.id) }}#comments">
                             <span class="label label-primary">
                                 {{ post.comments.count() }}评论

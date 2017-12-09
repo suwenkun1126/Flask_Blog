@@ -1,3 +1,4 @@
+#! -*- coding: utf-8 -*-
 from datetime import datetime
 from werkzeug.security import generate_password_hash,check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -195,11 +196,14 @@ def load_user(user_id):
 class Post(db.Model):
     __tablename__='posts'
     id=db.Column(db.Integer,primary_key=True)
+    head=db.Column(db.TEXT)
     body=db.Column(db.TEXT)
     body_html=db.Column(db.TEXT)
     timestamp=db.Column(db.DateTime,index=True,default=datetime.utcnow)
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))
-    comments=db.relationship('Comment', backref='post', lazy='dynamic')
+    comments=db.relationship('Comment',backref='post',lazy='dynamic')
+    category_id=db.Column(db.Integer,db.ForeignKey('category.id'))
+    visits=db.Column(db.Integer,server_default="true", nullable=False,default=int(10))
 
     @staticmethod
     def generate_fake(count=100):
@@ -210,9 +214,11 @@ class Post(db.Model):
         user_count=User.query.count()
         for i in range(count):
             u=User.query.offset(randint(0, user_count - 1)).first()
-            p=Post(body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                   timestamp=forgery_py.date.date(True),
-                   author=u)
+            p=Post(
+                head=forgery_py.lorem_ipsum.sentences(randint(1,3)),
+                body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                timestamp=forgery_py.date.date(True),
+                author=u)
             db.session.add(p)
             db.session.commit()
 
@@ -220,10 +226,20 @@ class Post(db.Model):
     def on_changed_body(target,value,oldvalue,initiator):
         allowed_tags=['a','abbr','acronym','b','blockquote','code',
                     'em','i','li','ol','pre','strong','ul',
-                    'h1','h2','h3','p']
-        target.body_html=bleach.linkify(bleach.clean(
-            markdown(value,output_format='html'),
-            tags=allowed_tags,strip=True))
+                    'h1','h2','h3','p','center','img']
+        attrs={
+            '*':['class'],
+            'a': ['href', 'rel'],
+            'img': ['src', 'alt']
+        }
+        target.body_html=bleach.linkify(
+            bleach.clean(
+                markdown(value,output_format='html'),
+                tags=allowed_tags,
+                strip=True,
+                attributes=attrs
+            )
+        )
 
     def to_json(self):
         json_post={
@@ -243,6 +259,22 @@ class Post(db.Model):
         if body is None or body=='':
             raise ValidationError('post does not have a body')
         return Post(body=body)
+
+    @staticmethod
+    def add_default_head():
+        for post in Post.query.all():
+            if not post.head:
+                post.head=u'其它'
+                db.session.add(post)
+                db.session.commit()
+
+    @staticmethod
+    def add_default_category():
+        for post in Post.query.all():
+            if not post.category:
+                post.category=Category.query.filter_by(category=u'其它').first()
+                db.session.add(post)
+                db.session.commit()
 
 db.event.listen(Post.body,'set',Post.on_changed_body)
 
@@ -283,6 +315,38 @@ class Comment(db.Model):
         return Comment(body=body)
 
 db.event.listen(Comment.body,'set',Comment.on_changed_body)
+
+class Category(db.Model):
+    __tablename__='category'
+    id=db.Column(db.Integer,primary_key=True)
+    category=db.Column(db.Unicode(128),unique=True)
+    posts=db.relationship('Post',backref='category',lazy='dynamic')
+
+    @staticmethod
+    def add_category():
+        categorys=[
+            u'Web开发',
+            u'Python爬虫',
+            u'Linux',
+            u'Git',
+            u'MongoDB数据库',
+            u'Redis数据库',
+            u'Mysql数据库',
+            u'生活感悟',
+            u'其它',
+            u'数据分析',
+            u'服务器',
+        ]
+        for c in categorys:
+            category=Category.query.filter_by(category=c).first()
+            if category is None:
+                category=Category(category=c)
+            db.session.add(category)
+        db.session.commit()
+
+    def __repr__(self):
+        return '<Category %r>' % self.category
+
 
 
 

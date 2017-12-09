@@ -1,11 +1,17 @@
-from flask import render_template, redirect, url_for, abort, flash, request,current_app
+#! -*- coding:utf-8 -*-
+from flask import render_template, redirect, url_for, abort, flash, request,current_app,g
 from flask_login import login_required, current_user
 from . import main
 from .forms import EditProfileForm,EditProfileAdminForm,PostForm,CommentForm
 from .. import db
-from ..models import Permission, Role, User, Post,Comment
+from ..models import Permission,Role,User,Post,Comment,Category
 from ..decorators import admin_required
 from flask_sqlalchemy import get_debug_queries
+
+@main.before_app_request
+def before_request():
+    g.categorys=Category.query.all()
+    g.hotpost=Post.query.order_by(Post.visits.desc()).all()
 
 @main.route('/shutdown')
 def server_shutdown():
@@ -19,9 +25,9 @@ def server_shutdown():
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = PostForm()
+    form=PostForm()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-        post = Post(body=form.body.data,author=current_user._get_current_object())
+        post=Post(head=form.head.data,body=form.body.data,author=current_user._get_current_object())
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
@@ -45,11 +51,13 @@ def user(username):
 @main.route('/post/<int:id>',methods=['GET','POST'])
 def post(id):
     post=Post.query.get_or_404(id)
+    post.visits+=1
+    print 'visit add one'
     form=CommentForm()
     if form.validate_on_submit():
         comment=Comment(body=form.body.data,post=post,author=current_user._get_current_object())
         db.session.add(comment)
-        flash('Your comment has been published')
+        flash(u'你的评论已经发表')
         return redirect(url_for('.post',id=post.id,page=-1))
     page=request.args.get('page',1,type=int)
     if page== -1:
@@ -59,6 +67,29 @@ def post(id):
     comments=pagination.items
     return render_template('post.html',posts=[post],form=form,comments=comments,pagination=pagination)
 
+@main.route('/delete_post/<int:id>')
+@login_required
+def delete_post(id):
+    post=Post.query.get_or_404(id)
+    if current_user==post.author:
+        db.session.delete(post)
+        db.session.commit()
+        flash(u'文章删除成功')
+    return redirect(url_for('main.index'))
+
+@main.route('/category/<int:id>',methods=['GET','POST'])
+def category(id):
+    category=Category.query.get_or_404(id)
+    page=request.args.get('page',1,type=int)
+    if page== -1:
+        page=(category.posts.count() -1)/ \
+            current_app.config['FLASKY_POSTS_PER_PAGE'] + 1
+    pagination=category.posts.order_by(Post.timestamp.asc()).paginate(
+        page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],error_out=False
+    )
+    posts=pagination.items
+    return render_template('category.html',category=category,posts=posts,pagination=pagination)
+
 @main.route('/edit/<int:id>',methods=['GET','POST'])
 @login_required
 def edit(id):
@@ -67,11 +98,16 @@ def edit(id):
         abort(403)
     form=PostForm()
     if form.validate_on_submit():
+        post.head=form.head.data
         post.body=form.body.data
+        post.category=Category.query.get(form.category.data)
         db.session.add(post)
-        flash('The post has been updated.')
+        db.session.commit()
+        flash(u'文章已经更新')
         return redirect(url_for('.post',id=post.id))
+    form.head.data=post.head
     form.body.data=post.body
+    form.category.data=post.category_id
     return render_template('edit_post.html',form=form)
 
 @main.route('/edit-profile',methods=['GET', 'POST'])
@@ -84,7 +120,7 @@ def edit_profile():
         current_user.about_me=form.about_me.data
         db.session.add(current_user._get_current_object())
         db.session.commit()
-        flash('Your profile has been updated.')
+        flash(u'你的个人资料已经更新')
         return redirect(url_for('.user',username=current_user.username))
     form.name.data=current_user.name
     form.location.data=current_user.location
@@ -127,6 +163,23 @@ def after_request(response):
                 (query.statement,query.parameters,query.duration,query.context)
             )
     return response
+
+@main.route('/new-article', methods=['GET','POST'])
+@login_required
+def new_article():
+    form=PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        post=Post(
+            head=form.head.data,
+            body=form.body.data,
+            category=Category.query.get(form.category.data),
+            author=current_user._get_current_object(),
+        )
+        db.session.add(post)
+        db.session.commit()
+        flash(u'新文章发布成功')
+        return redirect(url_for('.post',id=post.id))
+    return render_template('new_article.html',form=form)
 
 
 
