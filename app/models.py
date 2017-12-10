@@ -123,6 +123,7 @@ class User(UserMixin,db.Model):
             return False
         self.confirmed=True
         db.session.add(self)
+        db.session.commit()
         return True
 
     def can(self,permissions):
@@ -135,11 +136,13 @@ class User(UserMixin,db.Model):
     def ping(self):
         self.last_seen=datetime.utcnow()
         db.session.add(self)
+        db.session.commit()
 
     def change_email(self,token):
         self.email=new_email
         self.avatar_hash=self.gravatar_hash()
         db.session.add(self)
+        db.session.commit()
         return True
 
     def gravatar_hash(self):
